@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>上傳照片</title>
+  <title>東騰青一外牆缺失</title>
   <style>
     * {
       box-sizing: border-box;
@@ -179,7 +179,7 @@
 
       if (selectedFiles.length > 0) {
         uploadBtn.style.display = 'block';
-        uploadBtn.textContent = `Upload ${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}`;
+        uploadBtn.textContent = `上傳 ${selectedFiles.length} 張照片${selectedFiles.length > 1 ? 's' : ''}`;
       } else {
         uploadBtn.style.display = 'none';
       }
@@ -197,7 +197,7 @@
 
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        statusMessage.textContent = `Uploading photo ${i + 1} of ${selectedFiles.length}...`;
+        statusMessage.textContent = `上傳照片 ${i + 1} 之 ${selectedFiles.length}...`;
 
         const formData = new FormData();
         formData.append('file', file);
@@ -225,7 +225,7 @@
 
       if (failCount === 0) {
         statusMessage.className = 'text-success';
-        statusMessage.textContent = `所有 ${successCount} 照片上傳成功,謝謝!`;
+        statusMessage.textContent = `所有 ${successCount}張照片 上傳成功,謝謝!`;
         selectedFiles = [];
         fileInput.value = '';
         renderPreviews();
