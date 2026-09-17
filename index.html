@@ -40,12 +40,10 @@
       margin-bottom: 24px;
     }
 
-    /* Hidden native file input */
     #fileInput {
       display: none;
     }
 
-    /* Styled "Add Photos" Button */
     .btn-add {
       display: inline-flex;
       align-items: center;
@@ -65,7 +63,6 @@
       background-color: #1d4ed8;
     }
 
-    /* Preview Grid */
     .preview-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -87,9 +84,8 @@
       object-fit: cover;
     }
 
-    /* Upload Submit Button */
     .btn-upload {
-      display: none; /* Shown only after selecting files */
+      display: none;
       width: 100%;
       margin-top: 24px;
       background-color: #10b981;
@@ -100,23 +96,36 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      transition: background 0.2s;
     }
 
     .btn-upload:hover {
       background-color: #059669;
     }
+
+    .btn-upload:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    #statusMessage {
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .text-success { color: #10b981; }
+    .text-error { color: #ef4444; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h2>Upload Photos</h2>
-    <p>Select multiple images to upload.</p>
+    <p>Select multiple images to upload directly.</p>
 
-    <!-- Hidden Input with "multiple" and image filter -->
     <input type="file" id="fileInput" accept="image/*" multiple />
 
-    <!-- Visible Button linked to the input -->
     <label for="fileInput" class="btn-add">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
@@ -124,17 +133,24 @@
       Add Photos
     </label>
 
-    <!-- Image Previews -->
     <div class="preview-container" id="previewContainer"></div>
 
-    <!-- Submit/Upload Button -->
-    <button class="btn-upload" id="uploadBtn">Upload Selected Photos</button>
+    <button class="btn-upload" id="uploadBtn">Upload Photos</button>
+    <div id="statusMessage"></div>
   </div>
 
   <script>
+    // ==========================================
+    // 1. CONFIGURE YOUR CLOUDINARY CREDENTIALS
+    // ==========================================
+    const CLOUD_NAME = "tuqkgero";       // e.g., "dxy123abc"
+    const UPLOAD_PRESET = "Wall-Photo"; // e.g., "my_photo_uploads"
+    // ==========================================
+
     const fileInput = document.getElementById('fileInput');
     const previewContainer = document.getElementById('previewContainer');
     const uploadBtn = document.getElementById('uploadBtn');
+    const statusMessage = document.getElementById('statusMessage');
 
     let selectedFiles = [];
 
@@ -144,6 +160,7 @@
 
       selectedFiles = selectedFiles.concat(files);
       renderPreviews();
+      statusMessage.textContent = '';
     });
 
     function renderPreviews() {
@@ -168,15 +185,54 @@
       }
     }
 
-    uploadBtn.addEventListener('click', () => {
-      // Here you would send selectedFiles to a backend using fetch / FormData
-      const formData = new FormData();
-      selectedFiles.forEach((file, index) => {
-        formData.append(`photos[${index}]`, file);
-      });
+    uploadBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return;
 
-      alert(`Ready to upload ${selectedFiles.length} photos to your server!`);
-      // Example: fetch('/api/upload', { method: 'POST', body: formData });
+      uploadBtn.disabled = true;
+      statusMessage.className = '';
+      statusMessage.textContent = 'Starting upload...';
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        statusMessage.textContent = `Uploading photo ${i + 1} of ${selectedFiles.length}...`;
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        try {
+          const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || 'Upload failed');
+          }
+
+          successCount++;
+        } catch (error) {
+          console.error(`Error uploading ${file.name}:`, error);
+          failCount++;
+        }
+      }
+
+      uploadBtn.disabled = false;
+
+      if (failCount === 0) {
+        statusMessage.className = 'text-success';
+        statusMessage.textContent = `All ${successCount} photos uploaded successfully!`;
+        selectedFiles = [];
+        fileInput.value = '';
+        renderPreviews();
+      } else {
+        statusMessage.className = 'text-error';
+        statusMessage.textContent = `Uploaded ${successCount} photos, ${failCount} failed. Check console for details.`;
+      }
     });
   </script>
 
