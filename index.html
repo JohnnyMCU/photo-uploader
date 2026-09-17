@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Photos</title>
+  <title>上傳照片</title>
   <style>
     * {
       box-sizing: border-box;
@@ -63,7 +63,6 @@
       background-color: #1d4ed8;
     }
 
-    
     .preview-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -122,7 +121,7 @@
 <body>
 
   <div class="card">
-    <h2>Upload Photos</h2>
+    <h2>上傳照片</h2>
     <p>Select multiple images to upload directly.</p>
 
     <input type="file" id="fileInput" accept="image/*" multiple />
@@ -131,7 +130,7 @@
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
       </svg>
-      Add Photos
+      選擇照片
     </label>
 
     <div class="preview-container" id="previewContainer"></div>
@@ -191,7 +190,7 @@
 
       uploadBtn.disabled = true;
       statusMessage.className = '';
-      statusMessage.textContent = 'Starting upload...';
+      statusMessage.textContent = '開始上傳...';
 
       let successCount = 0;
       let failCount = 0;
@@ -212,7 +211,7 @@
 
           if (!response.ok) {
             const errData = await response.json();
-            throw new Error(errData.error?.message || 'Upload failed');
+            throw new Error(errData.error?.message || '上傳失敗');
           }
 
           successCount++;
@@ -226,7 +225,7 @@
 
       if (failCount === 0) {
         statusMessage.className = 'text-success';
-        statusMessage.textContent = `All ${successCount} photos uploaded successfully!`;
+        statusMessage.textContent = `所有 ${successCount} 照片上傳成功,謝謝!`;
         selectedFiles = [];
         fileInput.value = '';
         renderPreviews();
