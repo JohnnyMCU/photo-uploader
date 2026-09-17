@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Photos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 500px;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Hidden native file input */
+    #fileInput {
+      display: none;
+    }
+
+    /* Styled "Add Photos" Button */
+    .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    .btn-add:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Preview Grid */
+    .preview-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Upload Submit Button */
+    .btn-upload {
+      display: none; /* Shown only after selecting files */
+      width: 100%;
+      margin-top: 24px;
+      background-color: #10b981;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-upload:hover {
+      background-color: #059669;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Upload Photos</h2>
+    <p>Select multiple images to upload.</p>
+
+    <!-- Hidden Input with "multiple" and image filter -->
+    <input type="file" id="fileInput" accept="image/*" multiple />
+
+    <!-- Visible Button linked to the input -->
+    <label for="fileInput" class="btn-add">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Add Photos
+    </label>
+
+    <!-- Image Previews -->
+    <div class="preview-container" id="previewContainer"></div>
+
+    <!-- Submit/Upload Button -->
+    <button class="btn-upload" id="uploadBtn">Upload Selected Photos</button>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    let selectedFiles = [];
+
+    fileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      selectedFiles = selectedFiles.concat(files);
+      renderPreviews();
+    });
+
+    function renderPreviews() {
+      previewContainer.innerHTML = '';
+
+      selectedFiles.forEach((file) => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        div.appendChild(img);
+
+        previewContainer.appendChild(div);
+      });
+
+      if (selectedFiles.length > 0) {
+        uploadBtn.style.display = 'block';
+        uploadBtn.textContent = `Upload ${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}`;
+      } else {
+        uploadBtn.style.display = 'none';
+      }
+    }
+
+    uploadBtn.addEventListener('click', () => {
+      // Here you would send selectedFiles to a backend using fetch / FormData
+      const formData = new FormData();
+      selectedFiles.forEach((file, index) => {
+        formData.append(`photos[${index}]`, file);
+      });
+
+      alert(`Ready to upload ${selectedFiles.length} photos to your server!`);
+      // Example: fetch('/api/upload', { method: 'POST', body: formData });
+    });
+  </script>
+
+</body>
+</html>
